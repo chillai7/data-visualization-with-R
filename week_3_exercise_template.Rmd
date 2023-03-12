@@ -1,0 +1,231 @@
+---
+title: "Week 3 Peer Review"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+######DO NOT MODIFY. This will load required packages and data.
+
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggthemes)
+
+
+cces <- drop_na(read_csv(url("https://www.dropbox.com/s/ahmt12y39unicd2/cces_sample_coursera.csv?raw=1")))
+
+cel <- drop_na(read_csv(url("https://www.dropbox.com/s/4ebgnkdhhxo5rac/cel_volden_wiseman%20_coursera.csv?raw=1")))
+
+```
+
+Following the directions on the Coursera assignment page, you will make four original visualizations. Note that the data for the CCES and CEL data are imported in code in the R Markdown file.
+
+### Put your name here:
+Lai Chi Long
+
+
+
+## Exercise 1
+
+Explain what you are visualizing here:
+
+
+
+**scatter plot**
+
+
+*what to plot:*
+
+
+
+Bill passing and bill become law over the years between the two parties.
+
+
+
+
+*observation*
+
+
+
+From the graph below the no. of bill passing and became law have a linear relationship. The democrats are more active in having more bills being passed and bills became law, this is shown by the outlines in this scatter plot.
+
+However from question 3 the line plot, democrats have the marjority more times than the republicans, and could have advantages to have more bills passing and become law, and the republicans had less bills to pass and became law.
+
+
+
+'''
+Put your figure here:
+
+```{r exercise1,echo=FALSE}
+
+####PUT YOUR CODE HERE
+
+cel$Party <- recode(cel$dem, '1'='Democrat', '0'='Republican')
+
+scatter_data <- cel %>%
+  
+  select('all_pass', 'all_law','Party')
+head(scatter_data)
+ggplot(scatter_data,aes(x=all_pass, y=all_law, color=Party))+
+  geom_point()+
+  labs(x='no. of bill passed over the years', y='no. of bill became laws over the years',title='bill passing and bill become law over the years')+
+  scale_color_manual(values=c('blue','red'))+
+  annotate("segment", x = 0, xend = 30, y = 0, yend = 20,
+  colour = "black")+
+  annotate("text", x = 28, y = 15, label = "linear relationship")+
+  annotate("rect", xmin = 0, xmax = 18, ymin = 0, ymax = 8,
+  alpha = .2)+
+  annotate("text", x = 20, y = 2, label = "marjority",color='green')
+
+```
+
+## Exercise 2
+
+Explain what you are visualizing here:
+
+
+
+**distribution figure (box plot, histogram, or density plot)**
+
+
+
+**density plot**
+
+
+
+*what to plot:*
+
+
+
+Volden and Wiseman's legislative effective score (LES) over the years
+
+
+
+
+*observation*
+
+
+From the plot below, it appears that over the the years, both parties are not effective at all.
+
+
+Put your figure here:
+
+```{r exercise2,echo=FALSE}
+
+####PUT YOUR CODE HERE
+density_data <- cel %>%
+  select('Party', 'les')
+
+ggplot(density_data,(aes(x=les,group=Party, color=Party))) +
+  geom_density()+
+  scale_color_manual(values=c('blue', 'red'))+
+  facet_wrap(~Party)+
+  labs(x='LES score', y='density', title="Volden and Wiseman's legislative effective score (LES) over the years")
+
+  
+```
+
+## Exercise 3
+
+Explain what you are visualizing here:
+
+
+
+**line plot**
+
+
+
+*what to plot:*
+
+
+Time series of the evolution and changes among the no. of members in congress via out the year.
+
+
+
+
+*observation*
+
+
+From the graph below there are 3 switching points between the majority between parties, 1995, 2005 and 2011. Before 1995, Democrat 
+control the congress, after 1995, the parties majority switching becomes more frequently.
+
+
+
+
+Put your figure here:
+
+```{r exercise3,echo=FALSE}
+
+####PUT YOUR CODE HERE
+
+line_data <- cel %>%
+  group_by(year,Party) %>%
+  count(Party)
+ggplot(line_data,(aes(x=year,y=n,group=Party,color=Party))) +
+  geom_line()+
+  scale_color_manual(values=c('blue', 'red'))+
+  labs(x='Year', y='no. of member', title='no. of member vs year ')+
+  theme_wsj()
+  
+```
+
+## Exercise 4
+
+Explain what you are visualizing here:
+
+
+
+**bar plot**
+
+
+
+*what to plot:*
+
+
+Education level distribution between different regions.
+
+
+
+
+*observation*
+
+
+The four regions have a low dropout from high school rate with the label dropout. People from the midwest and south, they mainly have either high school or 4 year undergraduate education level, while people from the northwest and west, majority of people having at least 4 years of undergraduate training.
+
+
+
+
+
+
+Put your figure here:
+
+```{r exercise4,echo=FALSE}
+
+####PUT YOUR CODE HERE
+cces$education <- recode(cces$educ, 
+  '1'=' dropout',
+	'2'=' High school',
+	'3'=' Some college',
+	'4'=' 2-year',
+	'5'=' 4-year',
+	'6'=' Post-grad'
+)
+cces$area <- recode( cces$region,
+  '1'=' Northwest',
+	'2'=' Midwest',
+	'3'=' South',
+	'4'=' West'
+
+                                        )
+
+bar_data <- cces %>%
+  group_by(area,education) %>%
+  count(education)
+
+ggplot(bar_data,(aes(x=education,y=n,fill=education))) +
+  geom_bar(stat = "identity")+
+  facet_wrap(~area)+
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  labs(x='education level', y='no. of people',title='education level distribution base on region')
+
+```
